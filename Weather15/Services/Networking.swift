@@ -37,7 +37,7 @@ extension NetworkError: LocalizedError {
       return "This seem not a vail url"
     case .transportError:
       return "There is a transport error"
-    case .httpSeverSideError( _,let statusCode):
+    case .httpSeverSideError( _, let statusCode):
       return "There is a http server error with status code \(statusCode.rawValue)"
     }
   }

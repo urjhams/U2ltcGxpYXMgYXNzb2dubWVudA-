@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import CoreData
 
 extension NSObject {
   class var className : String {
@@ -29,5 +30,22 @@ extension UITableView {
       fatalError("Couldn't find UITableViewCell of class \(type.className)")
     }
     return cell
+  }
+}
+
+extension NSManagedObjectContext {
+  func saveIfChanged() throws {
+    guard hasChanges else {
+      return
+    }
+    try save()
+  }
+}
+
+extension Int64 {
+  
+  func fromKevinToCelsius() -> Double {
+    let result = self - 273.5
+    return Double(Int(result * 10.0)) / 10.0
   }
 }
