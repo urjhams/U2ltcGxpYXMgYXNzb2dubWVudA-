@@ -53,6 +53,7 @@ class Networking {
   
   /// Call a POST request. All the error handlers will stop the function immidiately
   /// - Parameters:
+  ///   - session: The URL session to use.
   ///   - url: plain string of the url.
   ///   - token: the bearer token
   ///   - params: http request body's parameters.
