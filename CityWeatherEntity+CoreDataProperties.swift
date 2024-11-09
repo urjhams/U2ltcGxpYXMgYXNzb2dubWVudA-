@@ -18,7 +18,7 @@ extension CityWeatherEntity {
 
     @NSManaged public var icon: String?
     @NSManaged public var humidity: Int64
-    @NSManaged public var temp: Int64
+    @NSManaged public var temp: Double
     @NSManaged public var condition: String?
     @NSManaged public var name: String?
 
