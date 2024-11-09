@@ -38,12 +38,16 @@ class CitesWeatherViewModel {
   
   private let dataChangeHandler: () -> Void
   
+  private let sortingChangeHandler: (SortingType) -> Void
+  
   init(
     sorting: SortingType = .alphabet,
-    dataChangeHandler: @escaping () -> Void
+    dataChangeHandler: @escaping () -> Void,
+    sortingChangeHandler: @escaping (SortingType) -> Void
   ) {
     self.sorting = sorting
     self.dataChangeHandler = dataChangeHandler
+    self.sortingChangeHandler = sortingChangeHandler
   }
   
 }

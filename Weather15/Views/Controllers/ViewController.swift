@@ -19,14 +19,18 @@ class ViewController: UITableViewController {
     super.viewDidLoad()
     viewModel = CitesWeatherViewModel { [weak self] in
       self?.tableView.reloadData()
+    } sortingChangeHandler: { [weak self] sortType in
+      self?.sortButton.title = switch sortType {
+      case .alphabet:
+        "􀅏"
+      case .temperature:
+        "􂬮"
+      }
     }
     
     setupTableView()
     setupRefresher()
   }
-  
-  // TODO: need a list of cities, a refresh to fetch and re-fetch cities
-  // TODO: need a button to sort by temperature or city name
 
   private func setupTableView() {
     tableView = UITableView(frame: .zero, style: .grouped)
