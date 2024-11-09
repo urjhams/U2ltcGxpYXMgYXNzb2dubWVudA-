@@ -66,17 +66,13 @@ class Networking {
   ) {
     
     guard
-      let valid = URL(string: url), UIApplication.shared.canOpenURL(valid),
-      let encodedUrl = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+      let encodedUrl = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+      let url = URL(string: encodedUrl), UIApplication.shared.canOpenURL(url)
     else {
       completionHandler(.failure(.badUrl))
       return
     }
-    guard let url = URL(string: encodedUrl) else {
-      // bad url
-      completionHandler(.failure(.badUrl))
-      return
-    }
+
     var request = URLRequest(
       url: url,
       cachePolicy: .reloadIgnoringLocalCacheData,
@@ -88,12 +84,8 @@ class Networking {
       request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
     }
     if let params = params {
-      do {
-        let jsonParams = try JSONSerialization.data(withJSONObject: params, options: [])
-        request.httpBody = jsonParams
-      } catch  {
-        debugPrint("Error: unable to add parameters to POST request.")
-      }
+      let jsonParams = try? JSONSerialization.data(withJSONObject: params, options: [])
+      request.httpBody = jsonParams
     }
     
     session.dataTask(with: request) { (data, response, error) in
@@ -111,12 +103,6 @@ class Networking {
       let statusCode = HTTPStatus(response.statusCode)
       
       if statusCode != .success {
-        // handle HTTP server-side error
-        if let _ = String(bytes: responseBody, encoding: .utf8) { } else {
-          // Otherwise print a hex dump of the body.
-          debugPrint("hex dump of the body")
-          debugPrint(responseBody as NSData)
-        }
         
         DispatchQueue.main.async {
           completionHandler(.failure(.httpSeverSideError(responseBody, statusCode: statusCode)))
