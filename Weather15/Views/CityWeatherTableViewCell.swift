@@ -7,6 +7,6 @@
 
 import UIKit
 
-final class CityTableViewCell: UITableViewCell {
+final class CityWeatherTableViewCell: UITableViewCell {
   
 }
