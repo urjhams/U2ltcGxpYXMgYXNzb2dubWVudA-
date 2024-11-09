@@ -21,33 +21,35 @@ class CitesWeatherViewModel {
   
   var cities = [CityWeatherEntity]() {
     didSet {
-      let sorted: [CityWeatherEntity] = switch sorting {
+      sortedCities = switch sorting {
       case .alphabet:
         cities.sorted { $0.name ?? "" <= $1.name ?? "" }
       case .temperature:
         cities.sorted { $0.temp <= $1.temp }
       }
-      
-      dataChangeHandler(sorted)
     }
   }
   
-  private let dataChangeHandler: ([CityWeatherEntity]) -> Void
+  var sortedCities = [CityWeatherEntity]() {
+    didSet {
+      dataChangeHandler()
+    }
+  }
+  
+  private let dataChangeHandler: () -> Void
   
   init(
     sorting: SortingType = .alphabet,
-    cities: [CityWeatherEntity] = [],
-    dataChangeHandler: @escaping ([CityWeatherEntity]) -> Void
+    dataChangeHandler: @escaping () -> Void
   ) {
     self.sorting = sorting
-    self.cities = cities
     self.dataChangeHandler = dataChangeHandler
   }
   
 }
 
 extension CitesWeatherViewModel {
-  func fetchCitiesWeather(completion: @escaping () -> Void = {}) {
+  func fetchCitiesWeather(completion: @escaping (Error?) -> Void) {
     // create the dispatch group
     
     // for each city, add the request into dispach group
@@ -57,6 +59,8 @@ extension CitesWeatherViewModel {
     // convert the response data to CityWeatherEntity
     
     // update the core data
+    
+    // if fail, completion with error
   }
   
   private func applyNewData(_ data: [CityWeatherEntity]) {
