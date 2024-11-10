@@ -28,7 +28,7 @@ extension CityWeatherResponse {
     CityWeather(
       humidity: Int64(self.main.humidity),
       temp: self.main.temp,
-      condition: self.base?.description,
+      condition: self.weather.first?.description,
       name: self.name
     )
   }
