@@ -26,6 +26,7 @@ class CitesWeatherViewModel {
       case .temperature:
         sortedCities.sort { $0.temp <= $1.temp }
       }
+      sortingChangeHandler(sorting)
     }
   }
   

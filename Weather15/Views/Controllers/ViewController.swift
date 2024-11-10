@@ -25,9 +25,9 @@ class ViewController: UITableViewController {
     } sortingChangeHandler: { [weak self] sortType in
       self?.sortButton.title = switch sortType {
       case .alphabet:
-        "􀅏"
+        "Sort by Name"
       case .temperature:
-        "􂬮"
+        "Sort by temp"
       }
     } errorHandler: { [weak self] error in
       self?.showError(
@@ -92,9 +92,9 @@ class ViewController: UITableViewController {
   private func navigationBarSetup() {
     let sortTitle = switch viewModel.sorting {
       case .alphabet:
-        "􀅏"
+        "Sort by Name"
       case .temperature:
-        "􂬮"
+        "Sort by temp"
     }
     sortButton = UIBarButtonItem(
       title: sortTitle,

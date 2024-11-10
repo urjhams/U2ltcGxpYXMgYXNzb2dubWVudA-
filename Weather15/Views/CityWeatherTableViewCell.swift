@@ -127,7 +127,7 @@ extension CityWeatherTableViewCell {
       .isActive = true
     humidityLabel
       .bottomAnchor
-      .constraint(equalTo: contentView.bottomAnchor, constant: verticalAligment)
+      .constraint(equalTo: contentView.bottomAnchor, constant: -verticalAligment)
       .isActive = true
     humidityLabel
       .topAnchor
