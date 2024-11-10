@@ -48,6 +48,37 @@ extension WeatherService {
       result($0)
     }
   }
+  
+  /// From the full sets of weather that we want to sync, apply the batch inserts for new records
+  ///  and batch update for existed records
+  ///  This function runs synchronisely in the background contexts.
+  func syncWeathers(
+    _ weathers: [CityWeatherEntity],
+    completion: @escaping ([CityWeatherEntity]) -> Void
+  ) {
+    // fetch all the weather records
+    
+    // compare the result with `weathers` and split to the new records and needUpdated records
+    
+    // apply the batch update in a task context (if the array is not empty)
+    
+    // apply the batch insert in a task context (if the array is not empty)
+    
+    // save the context and merge change to the main context
+    
+    DispatchQueue.main.async { [weak self] in
+      // do the fetch in the main context
+      self?.fetchWeathers(completion: completion)
+    }
+  }
+  
+  func fetchWeathers(completion: @escaping ([CityWeatherEntity]) -> Void) {
+    // use the completion block for handle the reload in the view model
+    // make the fetch request to fetch all the weather records
+    
+    // use the fetched record in the completion block
+  }
+  
 }
 
 

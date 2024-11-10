@@ -17,7 +17,16 @@ class CitesWeatherViewModel {
   
   private let names = ["London", "Berlin", "Stockholm", "Barcelona", "Amsterdam", "Doha", "New York"]
   
-  var sorting: SortingType = .alphabet
+  var sorting: SortingType = .alphabet {
+    didSet {
+      switch sorting {
+      case .alphabet:
+        sortedCities.sort { $0.name ?? "" <= $1.name ?? "" }
+      case .temperature:
+        sortedCities.sort { $0.temp <= $1.temp }
+      }
+    }
+  }
   
   var cities = [CityWeatherEntity]() {
     didSet {
@@ -53,7 +62,7 @@ class CitesWeatherViewModel {
 }
 
 extension CitesWeatherViewModel {
-  func fetchCitiesWeather(completion: @escaping (Error?) -> Void) {
+  func fetchCitiesWeather(completion: @escaping (Result<Void, Error>) -> Void) {
     // create the dispatch group
     
     // for each city, add the request into dispach group
@@ -67,14 +76,15 @@ extension CitesWeatherViewModel {
     // if fail, completion with error
   }
   
+  func getWeathers(completion: @escaping (Result<Void, Error>) -> Void) {
+    
+  }
+  
   private func applyNewData(_ data: [CityWeatherEntity]) {
-    // fetch the core data and split to new records and existed record using background context
-    
-    // batch insert the data of records that not existed in the core data
-    
-    // batch update the data of records that already existed in the core data
-    
-    // when done, fetch all the data from core data and apply it into cities
-    
+    WeatherService.shared.syncWeathers(data) { newVersion in
+      DispatchQueue.main.async { [unowned self] in
+        cities = newVersion
+      }
+    }
   }
 }

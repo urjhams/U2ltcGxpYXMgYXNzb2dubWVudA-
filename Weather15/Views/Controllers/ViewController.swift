@@ -17,8 +17,12 @@ class ViewController: UITableViewController {
 
   override func viewDidLoad() {
     super.viewDidLoad()
+    
     viewModel = CitesWeatherViewModel { [weak self] in
-      self?.tableView.reloadData()
+      // make sure to refresh the UI in the main thread
+      DispatchQueue.main.async {
+        self?.tableView.reloadData()
+      }
     } sortingChangeHandler: { [weak self] sortType in
       self?.sortButton.title = switch sortType {
       case .alphabet:
@@ -54,8 +58,8 @@ class ViewController: UITableViewController {
   
   @objc private func reloadListCities() {
     
-    viewModel.fetchCitiesWeather { [weak self] error in
-      if let error {
+    viewModel.fetchCitiesWeather { [weak self] result in
+      if case .failure(let error) = result {
         let alert = UIAlertController(
           title: "Error",
           message: error.localizedDescription,
