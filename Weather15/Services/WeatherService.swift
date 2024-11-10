@@ -61,7 +61,6 @@ extension WeatherService {
     let domain = "https://api.openweathermap.org"
     let weatherByCityName = "\(domain)/data/2.5/weather"
     let url = weatherByCityName + "?q=\(city)&appid=\(key)"
-    
     networking.sendPostRequest(CityWeatherResponse.self, session: session ?? .shared, to: url) {
       result($0)
     }

@@ -66,7 +66,6 @@ class Networking {
     parameters params: [String : Any?]? = nil,
     completionHandler: @escaping (Result<T, NetworkError>) -> ()
   ) {
-    
     guard
       let encodedUrl = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
       let url = URL(string: encodedUrl), UIApplication.shared.canOpenURL(url)
@@ -111,6 +110,7 @@ class Networking {
         }
         return
       }
+      print(String(data: responseBody, encoding: .utf8) ?? "")
       // success handling
       DispatchQueue.main.async {
         do {

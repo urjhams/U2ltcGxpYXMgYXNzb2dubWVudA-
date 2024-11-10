@@ -136,7 +136,7 @@ extension NetworkingTests {
       headerFields: ["Authorization" : "Bearer \(token)"]
     )
     
-    MockURLProtocol.response = (data: try! object.toJSON().data(using: .utf8), urlResponse: response, error: nil)
+    MockURLProtocol.response = (data: try! object.toJSON(), urlResponse: response, error: nil)
     
     let expectation = expectation(description: "Completion handler called")
     
@@ -168,7 +168,7 @@ extension NetworkingTests {
     )
     
     MockURLProtocol.response = (
-      data: try! object.toJSON().data(using: .utf8),
+      data: try! object.toJSON(),
       urlResponse: response, error: nil
     )
     
