@@ -33,6 +33,7 @@
 		4FCD910E2CDFA5F5008A3308 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCD910D2CDFA5F5008A3308 /* Extensions.swift */; };
 		4FCD91102CE0B369008A3308 /* WeatherServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCD910F2CE0B369008A3308 /* WeatherServiceTests.swift */; };
 		4FCD91122CE15709008A3308 /* CityWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCD91112CE15709008A3308 /* CityWeather.swift */; };
+		4FCD91142CE165EC008A3308 /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCD91132CE165EC008A3308 /* Misc.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +84,7 @@
 		4FCD910D2CDFA5F5008A3308 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		4FCD910F2CE0B369008A3308 /* WeatherServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherServiceTests.swift; sourceTree = "<group>"; };
 		4FCD91112CE15709008A3308 /* CityWeather.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityWeather.swift; sourceTree = "<group>"; };
+		4FCD91132CE165EC008A3308 /* Misc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +142,7 @@
 				4FA363E52CDF488200AB3898 /* Info.plist */,
 				4FA363DD2CDF488100AB3898 /* Weather15.xcdatamodeld */,
 				4FCD910D2CDFA5F5008A3308 /* Extensions.swift */,
+				4FCD91132CE165EC008A3308 /* Misc.swift */,
 				4FA3640A2CDF4E9800AB3898 /* Services */,
 				4FA364082CDF4E7C00AB3898 /* Views */,
 				4FA364262CDF7E3100AB3898 /* ViewModel */,
@@ -377,6 +380,7 @@
 				4FA3641B2CDF6C1C00AB3898 /* Weather.swift in Sources */,
 				4FA363D52CDF488100AB3898 /* AppDelegate.swift in Sources */,
 				4FA364192CDF6C0800AB3898 /* Coordinate.swift in Sources */,
+				4FCD91142CE165EC008A3308 /* Misc.swift in Sources */,
 				4FA364282CDF7E5400AB3898 /* CitesWeatherViewModel.swift in Sources */,
 				4FA364102CDF538800AB3898 /* Networking.swift in Sources */,
 				4FA3641F2CDF6C4600AB3898 /* WeatherWind.swift in Sources */,

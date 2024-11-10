@@ -65,16 +65,11 @@ extension WeatherService {
     let weatherByCityName = "\(domain)/data/2.5/weather"
     let url = weatherByCityName + "?q=\(city)&appid=\(key)"
     
-    networking.sendPostRequest(
-      CityWeatherResponse.self, 
-      session: session ?? .shared,
-      to: url
-    ) {
+    networking.sendPostRequest(CityWeatherResponse.self, session: session ?? .shared, to: url) {
       result($0)
     }
   }
 }
-
 
 // MARK: CoreData
 extension WeatherService {

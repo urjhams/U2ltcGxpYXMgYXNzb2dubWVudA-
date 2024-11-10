@@ -40,7 +40,11 @@ class ViewController: UITableViewController {
     setupTableView()
     setupRefresher()
     navigationBarSetup()
+    
+    // load the local data at first
     loadLocalData()
+    
+    // initialy, try to fetch new data every time the view is loaded
     reloadListCities()
   }
 
@@ -65,6 +69,10 @@ class ViewController: UITableViewController {
   }
   
   @objc private func reloadListCities() {
+    
+    guard isConnectedToNetwork() else {
+      return refresher.endRefreshing()
+    }
     
     viewModel.fetchCitiesWeather { [weak self] data, errors in
       guard errors.isEmpty else {
