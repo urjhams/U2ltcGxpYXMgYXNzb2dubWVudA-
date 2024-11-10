@@ -86,7 +86,7 @@ class ViewController: UITableViewController {
       "Tokyo"
     ]
     
-    viewModel.fetchCitiesWeather(from: names) { [weak self] data, errors in
+    viewModel.fetchCitiesWeather(service: WeatherService.shared, from: names) { [weak self] data, errors in
       guard errors.isEmpty else {
         self?.showError(
           title: "Error",
@@ -96,7 +96,7 @@ class ViewController: UITableViewController {
         return
       }
       
-      self?.viewModel.applyNewData(data)
+      self?.viewModel.applyNewData(data, service: WeatherService.shared)
       self?.refresher.endRefreshing()
     }
   }
@@ -125,7 +125,7 @@ class ViewController: UITableViewController {
   }
   
   func loadLocalData() {
-    viewModel.getWeathers()
+    viewModel.getWeathers(service: WeatherService.shared)
   }
 }
 

@@ -7,12 +7,27 @@
 
 import CoreData
 
+protocol WeatherServiceProtocol {
+  func fetchWeather(
+    of city: String,
+    session: URLSession?, 
+    result: @escaping (Result<CityWeatherResponse, NetworkError>) -> Void
+  )
+  
+  func fetchWeathersFromCoreData(completion: @escaping (Result<[CityWeather], Error>) -> Void)
+  
+  func syncWeathers(
+    _ weathers: [CityWeather],
+    completion: @escaping (Result<[CityWeather], Error>) -> Void
+  )
+}
+
 enum ServiceError: Error {
   case unableToUpdate
   case fetchingError
 }
 
-class WeatherService {
+class WeatherService: WeatherServiceProtocol {
   
   static let shared = WeatherService()
   
@@ -53,7 +68,7 @@ extension WeatherService {
   func fetchWeather(
     of city: String,
     session: URLSession? = nil,
-    result: @escaping (Result<CityWeatherResponse, NetworkError>)->Void
+    result: @escaping (Result<CityWeatherResponse, NetworkError>) -> Void
   ) {
     /// this is a sample app with a free and public weather service so I put the API key here,
     /// in the real use case, the secrect key `MUST NOT be stored in the source code`.

@@ -67,6 +67,7 @@ class CitesWeatherViewModel {
 extension CitesWeatherViewModel {
   
   func fetchCitiesWeather(
+    service: any WeatherServiceProtocol,
     from names: [String],
     completion: @escaping ([CityWeather], [Error]) -> Void
   ) {
@@ -79,7 +80,7 @@ extension CitesWeatherViewModel {
     for name in names {
       // for each city, add the request into dispach group
       dispatchGroup.enter()
-      WeatherService.shared.fetchWeather(of: name) { result in
+      service.fetchWeather(of: name, session: nil) { result in
         dataQueue.async {
           switch result {
           case .success(let response):
@@ -101,8 +102,8 @@ extension CitesWeatherViewModel {
     }
   }
   
-  func getWeathers() {
-    WeatherService.shared.fetchWeathersFromCoreData { result in
+  func getWeathers(service: any WeatherServiceProtocol) {
+    service.fetchWeathersFromCoreData { result in
       DispatchQueue.main.async { [weak self] in
         guard let self else {
           return
@@ -117,8 +118,8 @@ extension CitesWeatherViewModel {
     }
   }
   
-  func applyNewData(_ data: [CityWeather]) {
-    WeatherService.shared.syncWeathers(data) { result in
+  func applyNewData(_ data: [CityWeather], service: any WeatherServiceProtocol) {
+    service.syncWeathers(data) { result in
       DispatchQueue.main.async { [weak self] in
         switch result {
         case .success(let newVersion):
