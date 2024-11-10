@@ -27,7 +27,7 @@ class ViewController: UITableViewController {
       case .alphabet:
         "Sort by Name"
       case .temperature:
-        "Sort by temp"
+        "Sort by Temp"
       }
     } errorHandler: { [weak self] error in
       self?.showError(
@@ -74,7 +74,19 @@ class ViewController: UITableViewController {
       return refresher.endRefreshing()
     }
     
-    viewModel.fetchCitiesWeather { [weak self] data, errors in
+    let names = [
+      "London",
+      "Berlin",
+      "Stockholm",
+      "Barcelona",
+      "Amsterdam",
+      "Doha",
+      "New York",
+      "Hanoi",
+      "Tokyo"
+    ]
+    
+    viewModel.fetchCitiesWeather(from: names) { [weak self] data, errors in
       guard errors.isEmpty else {
         self?.showError(
           title: "Error",
@@ -94,7 +106,7 @@ class ViewController: UITableViewController {
       case .alphabet:
         "Sort by Name"
       case .temperature:
-        "Sort by temp"
+        "Sort by Temp"
     }
     sortButton = UIBarButtonItem(
       title: sortTitle,

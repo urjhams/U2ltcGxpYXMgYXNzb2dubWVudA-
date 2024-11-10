@@ -18,36 +18,33 @@ class WeatherService {
   
   private let networking: Networking
   
-  private var notificationToken: NSObjectProtocol?
+  let container: NSPersistentContainer
   
-  /// A peristent history token used for fetching transactions from the store.
-  private var lastToken: NSPersistentHistoryToken?
-  
-  init(_ network: Networking = .shared) {
+  init(_ network: Networking = .shared, container: NSPersistentContainer? = nil) {
     self.networking = network
-  }
-  
-  lazy var container: NSPersistentContainer = {
-    // persistentContainer
-    let container = NSPersistentContainer(name: "Weather15")
-    
-    guard let description = container.persistentStoreDescriptions.first else {
-      fatalError("Failed to retrieve a persistent store description.")
-    }
-    
-    container.loadPersistentStores { storeDescription, error in
-      if let error = error as NSError? {
-        fatalError("Unresolved error \(error), \(error.userInfo)")
+    if let container {
+      self.container = container
+    } else {
+      // persistentContainer
+      let container = NSPersistentContainer(name: "Weather15")
+      
+      guard let _ = container.persistentStoreDescriptions.first else {
+        fatalError("Failed to retrieve a persistent store description.")
       }
+      
+      container.loadPersistentStores { storeDescription, error in
+        if let error = error as NSError? {
+          fatalError("Unresolved error \(error), \(error.userInfo)")
+        }
+      }
+      
+      container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+      container.viewContext.undoManager = nil
+      container.viewContext.shouldDeleteInaccessibleFaults = true
+      container.viewContext.automaticallyMergesChangesFromParent = true
+      self.container = container
     }
-    
-    container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-    container.viewContext.undoManager = nil
-    container.viewContext.shouldDeleteInaccessibleFaults = true
-    container.viewContext.automaticallyMergesChangesFromParent = true
-    
-    return container
-  }()
+  }
   
 }
 
@@ -153,18 +150,6 @@ extension WeatherService {
 
     }
 
-  }
-  
-  private func mergePersistentHistoryChanges(from history: [NSPersistentHistoryTransaction]) {
-    // Update view context with objectIDs from history change request.
-    /// - Tag: mergeChanges
-    let viewContext = container.viewContext
-    viewContext.perform {
-      for transaction in history {
-        viewContext.mergeChanges(fromContextDidSave: transaction.objectIDNotification())
-        self.lastToken = transaction.token
-      }
-    }
   }
   
   func fetchWeathersFromCoreData(

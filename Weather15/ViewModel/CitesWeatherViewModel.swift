@@ -15,9 +15,6 @@ class CitesWeatherViewModel {
     case temperature
   }
   
-  // TODO: shouldn't hard code, try to initial in database when the app first load
-  private let names = ["London", "Berlin", "Stockholm", "Barcelona", "Amsterdam", "Doha", "New York"]
-  
   var sorting: SortingType = .alphabet {
     didSet {
       switch sorting {
@@ -70,6 +67,7 @@ class CitesWeatherViewModel {
 extension CitesWeatherViewModel {
   
   func fetchCitiesWeather(
+    from names: [String],
     completion: @escaping ([CityWeather], [Error]) -> Void
   ) {
     // create the dispatch group
