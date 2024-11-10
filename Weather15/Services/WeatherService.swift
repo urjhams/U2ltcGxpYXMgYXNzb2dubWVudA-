@@ -11,6 +11,12 @@ class WeatherService {
   
   static let shared = WeatherService()
   
+  private let networking: Networking
+  
+  init(_ network: Networking = .shared) {
+    self.networking = network
+  }
+  
   lazy var container: NSPersistentContainer = {
     // persistentContainer
     let container = NSPersistentContainer(name: "Weather15")
@@ -32,6 +38,7 @@ class WeatherService {
     
     return container
   }()
+  
 }
 
 // MARK: Fetch API
@@ -44,7 +51,7 @@ extension WeatherService {
     let weatherByCityName = "\(domain)/data/2.5/weather"
     let url = weatherByCityName + "?q=\(city)&appid=\(key)"
     
-    Networking.shared.sendPostRequest(to: url) {
+    networking.sendPostRequest(to: url) {
       result($0)
     }
   }
@@ -88,6 +95,7 @@ extension WeatherService {
   }
   
   func fetchWeathers(completion: @escaping (Result<[CityWeatherEntity], Error>) -> Void) {
+    /// in the case of the potential size and complexity of the data is high, run the perform block in another thread instead
     container.viewContext.perform {
       // make the fetch request to fetch all the weather records
       

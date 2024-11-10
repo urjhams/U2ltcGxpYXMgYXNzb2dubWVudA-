@@ -31,6 +31,7 @@
 		4FCD910B2CDFA1B5008A3308 /* CityWeatherEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCD91092CDFA1B5008A3308 /* CityWeatherEntity+CoreDataClass.swift */; };
 		4FCD910C2CDFA1B5008A3308 /* CityWeatherEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCD910A2CDFA1B5008A3308 /* CityWeatherEntity+CoreDataProperties.swift */; };
 		4FCD910E2CDFA5F5008A3308 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCD910D2CDFA5F5008A3308 /* Extensions.swift */; };
+		4FCD91102CE0B369008A3308 /* WeatherServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FCD910F2CE0B369008A3308 /* WeatherServiceTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +80,7 @@
 		4FCD91092CDFA1B5008A3308 /* CityWeatherEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CityWeatherEntity+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
 		4FCD910A2CDFA1B5008A3308 /* CityWeatherEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CityWeatherEntity+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		4FCD910D2CDFA5F5008A3308 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		4FCD910F2CE0B369008A3308 /* WeatherServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherServiceTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +151,7 @@
 			children = (
 				4FA364132CDF57BC00AB3898 /* Mocks */,
 				4FA364112CDF542E00AB3898 /* NetworkingTests.swift */,
+				4FCD910F2CE0B369008A3308 /* WeatherServiceTests.swift */,
 			);
 			path = Weather15Tests;
 			sourceTree = "<group>";
@@ -384,6 +387,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FA364152CDF57CC00AB3898 /* NetworkMocking.swift in Sources */,
+				4FCD91102CE0B369008A3308 /* WeatherServiceTests.swift in Sources */,
 				4FA364122CDF542E00AB3898 /* NetworkingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
