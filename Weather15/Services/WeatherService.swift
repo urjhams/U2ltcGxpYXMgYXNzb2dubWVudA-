@@ -48,6 +48,19 @@ extension WeatherService {
       result($0)
     }
   }
+}
+
+
+// MARK: CoreData
+extension WeatherService {
+  /// Creates and configures a private queue context.
+  private func newTaskContext() -> NSManagedObjectContext {
+    // Create a private queue context.
+    let taskContext = container.newBackgroundContext()
+    taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+    taskContext.undoManager = nil
+    return taskContext
+  }
   
   /// From the full sets of weather that we want to sync, apply the batch inserts for new records
   ///  and batch update for existed records
@@ -84,27 +97,4 @@ extension WeatherService {
       
     }
   }
-  
-}
-
-
-// MARK: CoreData
-extension WeatherService {
-  
-  /// Creates and configures a private queue context.
-  private func newTaskContext() -> NSManagedObjectContext {
-    // Create a private queue context.
-    let taskContext = container.newBackgroundContext()
-    taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-    taskContext.undoManager = nil
-    return taskContext
-  }
-  
-  private func updateMainContext() {
-    container.viewContext.perform {
-      NotificationCenter.default.post(name: NSNotification.Name("WeatherDataUpdated"), object: nil)
-    }
-  }
-  
-  
 }

@@ -43,7 +43,6 @@ extension NSManagedObjectContext {
 }
 
 extension Double {
-  
   func fromKevinToCelsius() -> Double {
     let result = self - 273.5
     return Double(Int(result * 10.0)) / 10.0
