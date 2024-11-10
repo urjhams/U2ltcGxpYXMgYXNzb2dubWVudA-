@@ -8,7 +8,7 @@
 import UIKit
 
 final class CityWeatherTableViewCell: UITableViewCell {
-  var city: CityWeatherEntity? {
+  var city: CityWeather? {
     didSet {
       // update the cell's information
       nameLabel.text = city?.name

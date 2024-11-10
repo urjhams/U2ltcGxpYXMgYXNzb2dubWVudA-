@@ -100,7 +100,7 @@ final class WeatherServiceTests: XCTestCase {
     weatherService.fetchWeather(of: testName, session: session) { result in
       switch result {
       case .success(let response):
-        XCTAssertEqual(response[0].name, testName)
+        XCTAssertEqual(response.name, testName)
       case .failure:
         XCTFail("Expected success, but got failure.")
       }

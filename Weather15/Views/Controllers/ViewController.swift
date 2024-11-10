@@ -15,8 +15,8 @@ class ViewController: UITableViewController {
   
   private var sortButton: UIBarButtonItem!
   
-  override func loadView() {
-    super.loadView()
+  override func viewDidLoad() {
+    super.viewDidLoad()
     viewModel = CitesWeatherViewModel { [weak self] in
       // make sure to refresh the UI in the main thread
       DispatchQueue.main.async {
@@ -36,21 +36,18 @@ class ViewController: UITableViewController {
         actions: [.init(title: "Ok", style: .default)]
       )
     }
-  }
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
     
     setupTableView()
     setupRefresher()
-    
+    navigationBarSetup()
     loadLocalData()
+    reloadListCities()
   }
 
   private func setupTableView() {
     tableView = UITableView(frame: .zero, style: .grouped)
-    tableView.backgroundColor = .clear
-    tableView.separatorStyle = .singleLine
+    tableView.backgroundColor = .white
+    tableView.separatorStyle = .none
     
     tableView.delegate = self
     tableView.dataSource = self
@@ -69,14 +66,18 @@ class ViewController: UITableViewController {
   
   @objc private func reloadListCities() {
     
-    viewModel.fetchCitiesWeather { [weak self] result in
-      if case .failure(let error) = result {
+    viewModel.fetchCitiesWeather { [weak self] data, errors in
+      guard errors.isEmpty else {
         self?.showError(
           title: "Error",
-          message: error.localizedDescription,
+          message: ServiceError.fetchingError.localizedDescription,
           actions: [.init(title: "Ok", style: .default)]
         )
+        return
       }
+      
+      self?.viewModel.applyNewData(data)
+      self?.refresher.endRefreshing()
     }
   }
   
@@ -93,7 +94,9 @@ class ViewController: UITableViewController {
       target: self,
       action: #selector(clickSortButton)
     )
-    navigationItem.setRightBarButton(sortButton, animated: true)
+    
+    navigationItem.setRightBarButtonItems([sortButton], animated: true)
+    
     extendedLayoutIncludesOpaqueBars = true
   }
   

@@ -22,3 +22,14 @@ struct CityWeatherResponse: Codable {
   var name: String
   var cod: Int?
 }
+
+extension CityWeatherResponse {
+  func toCityWeatherModel() -> CityWeather {
+    CityWeather(
+      humidity: Int64(self.main.humidity),
+      temp: self.main.temp,
+      condition: self.base?.description,
+      name: self.name
+    )
+  }
+}

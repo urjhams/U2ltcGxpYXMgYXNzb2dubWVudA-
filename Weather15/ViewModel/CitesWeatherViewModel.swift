@@ -15,31 +15,32 @@ class CitesWeatherViewModel {
     case temperature
   }
   
+  // TODO: shouldn't hard code, try to initial in database when the app first load
   private let names = ["London", "Berlin", "Stockholm", "Barcelona", "Amsterdam", "Doha", "New York"]
   
   var sorting: SortingType = .alphabet {
     didSet {
       switch sorting {
       case .alphabet:
-        sortedCities.sort { $0.name ?? "" <= $1.name ?? "" }
+        sortedCities.sort { $0.name <= $1.name }
       case .temperature:
         sortedCities.sort { $0.temp <= $1.temp }
       }
     }
   }
   
-  var cities = [CityWeatherEntity]() {
+  var cities = [CityWeather]() {
     didSet {
       sortedCities = switch sorting {
       case .alphabet:
-        cities.sorted { $0.name ?? "" <= $1.name ?? "" }
+        cities.sorted { $0.name <= $1.name }
       case .temperature:
         cities.sorted { $0.temp <= $1.temp }
       }
     }
   }
   
-  var sortedCities = [CityWeatherEntity]() {
+  var sortedCities = [CityWeather]() {
     didSet {
       dataChangeHandler()
     }
@@ -67,37 +68,57 @@ class CitesWeatherViewModel {
 
 extension CitesWeatherViewModel {
   
-  func fetchCitiesWeather(completion: @escaping (Result<Void, Error>) -> Void) {
+  func fetchCitiesWeather(
+    completion: @escaping ([CityWeather], [Error]) -> Void
+  ) {
     // create the dispatch group
+    var weatherDataArray: [CityWeather] = []
+    var errors: [Error] = []
+    let dispatchGroup = DispatchGroup()
+    let dataQueue = DispatchQueue(label: "com.yourapp.weatherdataqueue")
     
-    // for each city, add the request into dispach group
+    for name in names {
+      // for each city, add the request into dispach group
+      dispatchGroup.enter()
+      WeatherService.shared.fetchWeather(of: name) { result in
+        dataQueue.async {
+          switch result {
+          case .success(let response):
+            // convert the response data to CityWeatherEntity
+            weatherDataArray.append(response.toCityWeatherModel())
+            dispatchGroup.leave()
+          case .failure(let error):
+            errors.append(error)
+            dispatchGroup.leave()
+          }
+        }
+      }
+    }
     
     // notify when all response
-    
-    // convert the response data to CityWeatherEntity
-    
-    // update the core data
-    
-    // if fail, completion with error
-    
-    // if success, try to get weathers and apply new data to the cities
-//    applyNewData(<#T##data: [CityWeatherEntity]##[CityWeatherEntity]#>)
+    dispatchGroup.notify(queue: .main) {
+      // All network requests have completed
+      completion(weatherDataArray, errors)
+    }
   }
   
   func getWeathers() {
     WeatherService.shared.fetchWeathersFromCoreData { result in
       DispatchQueue.main.async { [weak self] in
+        guard let self else {
+          return
+        }
         switch result {
         case .success(let newVersion):
-          self?.cities = newVersion
+          cities = newVersion
         case .failure(let error):
-          self?.errorHandler(error)
+          errorHandler(error)
         }
       }
     }
   }
   
-  private func applyNewData(_ data: [CityWeatherEntity]) {
+  func applyNewData(_ data: [CityWeather]) {
     WeatherService.shared.syncWeathers(data) { result in
       DispatchQueue.main.async { [weak self] in
         switch result {

@@ -16,10 +16,20 @@ extension CityWeatherEntity {
         return NSFetchRequest<CityWeatherEntity>(entityName: "CityWeatherEntity")
     }
 
-    @NSManaged public var icon: String?
     @NSManaged public var humidity: Int64
     @NSManaged public var temp: Double
     @NSManaged public var condition: String?
-    @NSManaged public var name: String?
+    @NSManaged public var name: String
 
+}
+
+extension CityWeatherEntity {
+  func toCityWeatherModel() -> CityWeather {
+    CityWeather(
+      humidity: self.humidity,
+      temp: self.temp,
+      condition: self.condition,
+      name: self.name
+    )
+  }
 }

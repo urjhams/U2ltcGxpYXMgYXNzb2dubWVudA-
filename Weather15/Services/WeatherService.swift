@@ -9,6 +9,7 @@ import CoreData
 
 enum ServiceError: Error {
   case unableToUpdate
+  case fetchingError
 }
 
 class WeatherService {
@@ -16,6 +17,11 @@ class WeatherService {
   static let shared = WeatherService()
   
   private let networking: Networking
+  
+  private var notificationToken: NSObjectProtocol?
+  
+  /// A peristent history token used for fetching transactions from the store.
+  private var lastToken: NSPersistentHistoryToken?
   
   init(_ network: Networking = .shared) {
     self.networking = network
@@ -50,7 +56,7 @@ extension WeatherService {
   func fetchWeather(
     of city: String,
     session: URLSession? = nil,
-    result: @escaping (Result<[CityWeatherResponse], NetworkError>)->Void
+    result: @escaping (Result<CityWeatherResponse, NetworkError>)->Void
   ) {
     /// this is a sample app with a free and public weather service so I put the API key here,
     /// in the real use case, the secrect key `MUST NOT be stored in the source code`.
@@ -60,7 +66,7 @@ extension WeatherService {
     let url = weatherByCityName + "?q=\(city)&appid=\(key)"
     
     networking.sendPostRequest(
-      [CityWeatherResponse].self, 
+      CityWeatherResponse.self, 
       session: session ?? .shared,
       to: url
     ) {
@@ -78,7 +84,6 @@ extension WeatherService {
     let taskContext = container.newBackgroundContext()
     taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
     taskContext.undoManager = nil
-    taskContext.parent = container.viewContext
     return taskContext
   }
   
@@ -86,8 +91,8 @@ extension WeatherService {
   ///  and batch update for existed records
   ///  This function runs synchronisely in the background context
   func syncWeathers(
-    _ weathers: [CityWeatherEntity],
-    completion: @escaping (Result<[CityWeatherEntity], Error>) -> Void
+    _ weathers: [CityWeather],
+    completion: @escaping (Result<[CityWeather], Error>) -> Void
   ) {
     let backgroundContext = newTaskContext()
     
@@ -100,14 +105,14 @@ extension WeatherService {
       /// entity existed in the context already.
       var existingEntitiesLookUp = [String: CityWeatherEntity]()
       existingEntities?.forEach {
-        existingEntitiesLookUp[$0.name ?? ""] = $0
+        existingEntitiesLookUp[$0.name] = $0
       }
       
-      var updates = [CityWeatherEntity]()
-      var inserts = [CityWeatherEntity]()
+      var updates = [CityWeather]()
+      var inserts = [CityWeather]()
       
       weathers.forEach {
-        if let _ = existingEntitiesLookUp[$0.name ?? ""] {
+        if let _ = existingEntitiesLookUp[$0.name] {
           updates.append($0)
         } else {
           inserts.append($0)
@@ -122,25 +127,29 @@ extension WeatherService {
         newEntity.name = insert.name
         newEntity.condition = insert.condition
         newEntity.humidity = insert.humidity
-        newEntity.icon = insert.icon
         newEntity.temp = insert.temp
       }
       
       /// The update just stores the CityWeatherEntity that we converted from API so we use them
       /// to update the corresponding entity in the context (existingEntitiesLookUp)
       for update in updates {
-        let needToUpdate = existingEntitiesLookUp[update.name ?? ""]
+        let needToUpdate = existingEntitiesLookUp[update.name]
         needToUpdate?.name = update.name
         needToUpdate?.condition = update.condition
         needToUpdate?.humidity = update.humidity
         needToUpdate?.temp = update.temp
-        needToUpdate?.icon = update.icon
       }
       
       try? backgroundContext.saveIfChanged()
       
+      // merge change to main context and update UI
       container.viewContext.perform { [weak self] in
-        try? self?.container.viewContext.saveIfChanged()
+        self?.container.viewContext.mergeChanges(
+          fromContextDidSave: Notification(
+            name: .NSManagedObjectContextDidSave,
+            object: backgroundContext
+          )
+        )
         
         DispatchQueue.main.async { [weak self] in
           self?.fetchWeathersFromCoreData(completion: completion)
@@ -151,21 +160,31 @@ extension WeatherService {
 
   }
   
+  private func mergePersistentHistoryChanges(from history: [NSPersistentHistoryTransaction]) {
+    // Update view context with objectIDs from history change request.
+    /// - Tag: mergeChanges
+    let viewContext = container.viewContext
+    viewContext.perform {
+      for transaction in history {
+        viewContext.mergeChanges(fromContextDidSave: transaction.objectIDNotification())
+        self.lastToken = transaction.token
+      }
+    }
+  }
+  
   func fetchWeathersFromCoreData(
-    completion: @escaping (Result<[CityWeatherEntity], Error>) -> Void
+    completion: @escaping (Result<[CityWeather], Error>) -> Void
   ) {
     /// in the case of the potential size and complexity of the data is high, 
     /// run the perform block in background thread instead
     let mainContext = container.viewContext
     mainContext.perform {
-      // make the fetch request to fetch all the weather records
-      let fetchRequest = CityWeatherEntity.fetchRequest()
-      
       do {
+        // make the fetch request to fetch all the weather records
         let fetchRequest = CityWeatherEntity.fetchRequest()
         let entities = try mainContext.fetch(fetchRequest)
         // use the fetched record in the completion block
-        completion(.success(entities))
+        completion(.success(entities.map { $0.toCityWeatherModel() }))
       } catch {
         completion(.failure(error))
       }
