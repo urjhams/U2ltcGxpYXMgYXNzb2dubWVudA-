@@ -62,3 +62,11 @@ extension UIViewController {
     present(alert, animated: true)
   }
 }
+
+extension Encodable {
+  /// Converting object to postable JSON
+  func toJSON(_ encoder: JSONEncoder = JSONEncoder()) throws -> String {
+    let data = try encoder.encode(self)
+    return String(decoding: data, as: UTF8.self)
+  }
+}

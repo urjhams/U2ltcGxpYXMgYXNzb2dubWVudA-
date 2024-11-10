@@ -11,6 +11,7 @@ enum NetworkError: Error, Equatable {
   case badUrl
   case transportError
   case httpSeverSideError(Data, statusCode: HTTPStatus)
+  case badFormat
 }
 
 enum HTTPStatus: Int {
@@ -39,6 +40,8 @@ extension NetworkError: LocalizedError {
       return "There is a transport error"
     case .httpSeverSideError( _, let statusCode):
       return "There is a http server error with status code \(statusCode.rawValue)"
+    case .badFormat:
+      return "The response body is in the wrong format"
     }
   }
 }
@@ -48,9 +51,6 @@ class Networking {
   /// shared instance of Network class
   static let shared = Networking()
   
-  /// network handler closure
-  typealias NetworkHandler = (Result<Data, NetworkError>) -> ()
-  
   /// Call a POST request. All the error handlers will stop the function immidiately
   /// - Parameters:
   ///   - session: The URL session to use.
@@ -58,12 +58,13 @@ class Networking {
   ///   - token: the bearer token
   ///   - params: http request body's parameters.
   ///   - completionHandler: Handling when completion, included success and failure
-  public func sendPostRequest(
+  public func sendPostRequest<T: Codable>(
+    _ objectType: T.Type,
     session: URLSession = .shared,
     to url: String,
     withBearerToken token: String? = nil,
     parameters params: [String : Any?]? = nil,
-    completionHandler: @escaping NetworkHandler
+    completionHandler: @escaping (Result<T, NetworkError>) -> ()
   ) {
     
     guard
@@ -112,7 +113,12 @@ class Networking {
       }
       // success handling
       DispatchQueue.main.async {
-        completionHandler(.success(responseBody))
+        do {
+          let object = try JSONDecoder().decode(objectType.self, from: responseBody)
+          completionHandler(.success(object))
+        } catch {
+          completionHandler(.failure(.badFormat))
+        }
       }
     }.resume()
   }

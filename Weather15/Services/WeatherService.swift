@@ -43,15 +43,23 @@ class WeatherService {
 
 // MARK: Fetch API
 extension WeatherService {
-  func fetchWeather(of city: String, result: @escaping (Result<Data, NetworkError>)->Void) {
-    /// this is a sample app with a free and public weather service so I put the API key here, 
+  func fetchWeather(
+    of city: String,
+    session: URLSession? = nil,
+    result: @escaping (Result<[CityWeatherResponse], NetworkError>)->Void
+  ) {
+    /// this is a sample app with a free and public weather service so I put the API key here,
     /// in the real use case, the secrect key `MUST NOT be stored in the source code`.
     let key = "5ffcd8f8e469ee48581072a95ff9360f"
     let domain = "https://api.openweathermap.org"
     let weatherByCityName = "\(domain)/data/2.5/weather"
     let url = weatherByCityName + "?q=\(city)&appid=\(key)"
     
-    networking.sendPostRequest(to: url) {
+    networking.sendPostRequest(
+      [CityWeatherResponse].self, 
+      session: session ?? .shared,
+      to: url
+    ) {
       result($0)
     }
   }
@@ -90,12 +98,14 @@ extension WeatherService {
       // save the context and merge change to the main context
       
       // do the fetch in the main context
-      fetchWeathers(completion: completion)
+      fetchWeathersFromCoreData(completion: completion)
     }
   }
   
-  func fetchWeathers(completion: @escaping (Result<[CityWeatherEntity], Error>) -> Void) {
-    /// in the case of the potential size and complexity of the data is high, run the perform block in another thread instead
+  func fetchWeathersFromCoreData(
+    completion: @escaping (Result<[CityWeatherEntity], Error>) -> Void
+  ) {
+    /// in the case of the potential size and complexity of the data is high, run the perform block in background thread instead
     container.viewContext.perform {
       // make the fetch request to fetch all the weather records
       

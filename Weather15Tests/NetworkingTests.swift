@@ -10,6 +10,10 @@ import XCTest
 
 final class NetworkingTests: XCTestCase {
   
+  struct SampleCodable: Codable, Equatable {
+    var value: String
+  }
+  
   var network: Networking!
   var session: URLSession!
   
@@ -48,7 +52,11 @@ extension NetworkingTests {
   func testSendPostRequest_BadUrlError() {
     let expectation = expectation(description: "Completion handler called")
     
-    network.sendPostRequest(session: session, to: "invalid_url") { result in
+    network.sendPostRequest(
+      String.self,
+      session: session,
+      to: "invalid_url"
+    ) { result in
       switch result {
       case .success:
         XCTFail("Expected failure, but got success.")
@@ -58,7 +66,7 @@ extension NetworkingTests {
       expectation.fulfill()
     }
     
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 0.5)
   }
   
   func testSendPostRequest_HttpServerSideError() {
@@ -73,7 +81,11 @@ extension NetworkingTests {
     
     let expectation = expectation(description: "Completion handler called")
     
-    network.sendPostRequest(session: session, to: "https://example.com") { result in
+    network.sendPostRequest(
+      String.self,
+      session: session,
+      to: "https://example.com"
+    ) { result in
       switch result {
       case .success:
         XCTFail("Expected failure, but got success.")
@@ -88,7 +100,7 @@ extension NetworkingTests {
       expectation.fulfill()
     }
     
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 0.5)
   }
   
   func testSendPostRequest_TransportError() {
@@ -97,7 +109,11 @@ extension NetworkingTests {
     
     let expectation = expectation(description: "Completion handler called")
     
-    network.sendPostRequest(session: session, to: "https://example.com") { result in
+    network.sendPostRequest(
+      String.self, 
+      session: session, 
+      to: "https://example.com"
+    ) { result in
       switch result {
       case .success:
         XCTFail("Expected failure, but got success.")
@@ -107,12 +123,12 @@ extension NetworkingTests {
       expectation.fulfill()
     }
     
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 0.5)
   }
   
   func testRequestParam() {
     let token = "JustTheToken"
-    
+    let object = SampleCodable(value: token)
     let response = HTTPURLResponse(
       url: URL(string: "https://example.com")!,
       statusCode: 200,
@@ -120,52 +136,59 @@ extension NetworkingTests {
       headerFields: ["Authorization" : "Bearer \(token)"]
     )
     
-    MockURLProtocol.response = (data: token.data(using: .utf8), urlResponse: response, error: nil)
+    MockURLProtocol.response = (data: try! object.toJSON().data(using: .utf8), urlResponse: response, error: nil)
     
     let expectation = expectation(description: "Completion handler called")
     
     network.sendPostRequest(
+      SampleCodable.self,
       session: session,
       to: "https://example.com",
       withBearerToken: token
     ) { result in
       switch result {
       case .success (let data):
-        XCTAssertEqual(data, token.data(using: .utf8))
+        XCTAssertEqual(data.value, token)
       case .failure:
         XCTFail("Expected success, but got failure.")
       }
       expectation.fulfill()
     }
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 0.5)
   }
   
   func testSendPostRequest_Success() {
-    let jsonData = "{\"key\":\"value\"}".data(using: .utf8)
+    let string = "{\"key\":\"value\"}"
+    let object = SampleCodable(value: string)
     let response = HTTPURLResponse(
       url: URL(string: "https://example.com")!,
       statusCode: 200,
       httpVersion: nil,
       headerFields: nil
     )
-    MockURLProtocol.response = (data: jsonData, urlResponse: response, error: nil)
+    
+    MockURLProtocol.response = (
+      data: try! object.toJSON().data(using: .utf8),
+      urlResponse: response, error: nil
+    )
     
     let expectation = expectation(description: "Completion handler called")
-    
+
     network.sendPostRequest(
+      SampleCodable.self,
       session: session,
       to: "https://example.com",
       parameters: ["key": "value"]
     ) { result in
       switch result {
       case .success(let data):
-        XCTAssertEqual(data, jsonData)
+        XCTAssertEqual(data, object)
       case .failure:
         XCTFail("Expected success, but got failure.")
       }
       expectation.fulfill()
     }
     
-    waitForExpectations(timeout: 1)
+    waitForExpectations(timeout: 0.5)
   }
 }

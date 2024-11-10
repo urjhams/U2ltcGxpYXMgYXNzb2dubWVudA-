@@ -81,11 +81,11 @@ extension CitesWeatherViewModel {
     // if fail, completion with error
     
     // if success, try to get weathers and apply new data to the cities
-    applyNewData(<#T##data: [CityWeatherEntity]##[CityWeatherEntity]#>)
+//    applyNewData(<#T##data: [CityWeatherEntity]##[CityWeatherEntity]#>)
   }
   
   func getWeathers() {
-    WeatherService.shared.fetchWeathers { result in
+    WeatherService.shared.fetchWeathersFromCoreData { result in
       DispatchQueue.main.async { [weak self] in
         switch result {
         case .success(let newVersion):
