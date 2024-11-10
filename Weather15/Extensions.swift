@@ -49,3 +49,17 @@ extension Double {
     return Double(Int(result * 10.0)) / 10.0
   }
 }
+
+extension UIViewController {
+  func showError(title: String, message: String, actions: [UIAlertAction]) {
+    let alert = UIAlertController(
+      title: title,
+      message: message,
+      preferredStyle: .alert
+    )
+    actions.forEach { action in
+      alert.addAction(action)
+    }
+    present(alert, animated: true)
+  }
+}

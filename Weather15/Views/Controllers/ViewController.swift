@@ -30,6 +30,12 @@ class ViewController: UITableViewController {
       case .temperature:
         "􂬮"
       }
+    } errorHandler: { [weak self] error in
+      self?.showError(
+        title: "Error",
+        message: error.localizedDescription,
+        actions: [.init(title: "Ok", style: .default)]
+      )
     }
     
     setupTableView()
@@ -60,14 +66,11 @@ class ViewController: UITableViewController {
     
     viewModel.fetchCitiesWeather { [weak self] result in
       if case .failure(let error) = result {
-        let alert = UIAlertController(
+        self?.showError(
           title: "Error",
           message: error.localizedDescription,
-          preferredStyle: .alert
+          actions: [.init(title: "Ok", style: .default)]
         )
-        
-        alert.addAction(.init(title: "Ok", style: .default))
-        self?.present(alert, animated: true)
       }
     }
   }
@@ -90,7 +93,7 @@ class ViewController: UITableViewController {
   }
   
   @objc private func clickSortButton(_ sender: Any) {
-    
+    viewModel.toggleSorting()
   }
 }
 

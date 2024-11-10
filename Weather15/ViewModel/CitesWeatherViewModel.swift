@@ -49,14 +49,18 @@ class CitesWeatherViewModel {
   
   private let sortingChangeHandler: (SortingType) -> Void
   
+  private let errorHandler: (Error) -> Void
+  
   init(
     sorting: SortingType = .alphabet,
     dataChangeHandler: @escaping () -> Void,
-    sortingChangeHandler: @escaping (SortingType) -> Void
+    sortingChangeHandler: @escaping (SortingType) -> Void,
+    errorHandler: @escaping (Error) -> Void
   ) {
     self.sorting = sorting
     self.dataChangeHandler = dataChangeHandler
     self.sortingChangeHandler = sortingChangeHandler
+    self.errorHandler = errorHandler
   }
   
 }
@@ -81,10 +85,24 @@ extension CitesWeatherViewModel {
   }
   
   private func applyNewData(_ data: [CityWeatherEntity]) {
-    WeatherService.shared.syncWeathers(data) { newVersion in
-      DispatchQueue.main.async { [unowned self] in
-        cities = newVersion
+    WeatherService.shared.syncWeathers(data) { result in
+      DispatchQueue.main.async { [weak self] in
+        switch result {
+        case .success(let newVersion):
+          self?.cities = newVersion
+        case .failure(let error):
+          self?.errorHandler(error)
+        }
       }
+    }
+  }
+  
+  func toggleSorting() {
+    sorting = switch sorting {
+    case .alphabet:
+        .temperature
+    case .temperature:
+        .alphabet
     }
   }
 }
