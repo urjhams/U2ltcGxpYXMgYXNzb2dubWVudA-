@@ -7,6 +7,10 @@
 
 import CoreData
 
+enum ServiceError: Error {
+  case unableToUpdate
+}
+
 class WeatherService {
   
   static let shared = WeatherService()
@@ -74,6 +78,7 @@ extension WeatherService {
     let taskContext = container.newBackgroundContext()
     taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
     taskContext.undoManager = nil
+    taskContext.parent = container.viewContext
     return taskContext
   }
   
@@ -86,20 +91,59 @@ extension WeatherService {
   ) {
     let backgroundContext = newTaskContext()
     
-    backgroundContext.performAndWait {
+    backgroundContext.perform { [unowned self] in
       // fetch all the weather records
+      let fetchRequest = CityWeatherEntity.fetchRequest()
+      let existingEntities = try? backgroundContext.fetch(fetchRequest)
+      var existingEntitiesLookUp = [String: CityWeatherEntity]()
+      existingEntities?.forEach {
+        existingEntitiesLookUp[$0.name ?? ""] = $0
+      }
       
-      // compare the result with `weathers` and split to the new records and needUpdated records
+      var updates = [CityWeatherEntity]()
+      var inserts = [CityWeatherEntity]()
       
-      // apply the batch update in a task context (if the array is not empty)
+      weathers.forEach {
+        if let _ = existingEntitiesLookUp[$0.name ?? ""] {
+          updates.append($0)
+        } else {
+          inserts.append($0)
+        }
+      }
       
-      // apply the batch insert in a task context (if the array is not empty)
+      // batch insert is only available from iOS 13 so we don't use it here
       
-      // save the context and merge change to the main context
+      // perform insert
+      for insert in inserts {
+        let newEntity = CityWeatherEntity(context: backgroundContext)
+        newEntity.name = insert.name
+        newEntity.condition = insert.condition
+        newEntity.humidity = insert.humidity
+        newEntity.icon = insert.icon
+        newEntity.temp = insert.temp
+      }
       
-      // do the fetch in the main context
-      fetchWeathersFromCoreData(completion: completion)
+      for update in updates {
+        let needToUpdate = existingEntitiesLookUp[update.name ?? ""]
+        needToUpdate?.name = update.name
+        needToUpdate?.condition = update.condition
+        needToUpdate?.humidity = update.humidity
+        needToUpdate?.temp = update.temp
+        needToUpdate?.icon = update.icon
+      }
+      
+      try? backgroundContext.saveIfChanged()
+      
+      container.viewContext.perform { [weak self] in
+        try? self?.container.viewContext.saveIfChanged()
+        
+        DispatchQueue.main.async { [weak self] in
+          self?.fetchWeathersFromCoreData(completion: completion)
+        }
+      }
+
     }
+
   }
   
   func fetchWeathersFromCoreData(
