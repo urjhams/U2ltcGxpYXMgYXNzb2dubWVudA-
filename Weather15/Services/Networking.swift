@@ -94,7 +94,6 @@ class Networking {
         // handle transport error
         DispatchQueue.main.async {
           completionHandler(.failure(.transportError))
-          debugPrint(error.localizedDescription)
         }
         return
       }
@@ -110,7 +109,6 @@ class Networking {
         }
         return
       }
-      print(String(data: responseBody, encoding: .utf8) ?? "")
       // success handling
       DispatchQueue.main.async {
         do {
