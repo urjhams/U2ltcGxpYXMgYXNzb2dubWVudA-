@@ -37,8 +37,8 @@ class WeatherService {
 // MARK: Fetch API
 extension WeatherService {
   func fetchWeather(of city: String, result: @escaping (Result<Data, NetworkError>)->Void) {
-    /// this is a sample app with a free and public weather service so I put the API key here, in the real use case, the secrect key
-    /// must not be stored in the source code
+    /// this is a sample app with a free and public weather service so I put the API key here, 
+    /// in the real use case, the secrect key `MUST NOT be stored in the source code`.
     let key = "5ffcd8f8e469ee48581072a95ff9360f"
     let domain = "https://api.openweathermap.org"
     let weatherByCityName = "\(domain)/data/2.5/weather"

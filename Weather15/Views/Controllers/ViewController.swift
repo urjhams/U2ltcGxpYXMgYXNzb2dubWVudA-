@@ -14,10 +14,9 @@ class ViewController: UITableViewController {
   private let refresher = UIRefreshControl()
   
   private var sortButton: UIBarButtonItem!
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    
+  
+  override func loadView() {
+    super.loadView()
     viewModel = CitesWeatherViewModel { [weak self] in
       // make sure to refresh the UI in the main thread
       DispatchQueue.main.async {
@@ -37,9 +36,15 @@ class ViewController: UITableViewController {
         actions: [.init(title: "Ok", style: .default)]
       )
     }
+  }
+
+  override func viewDidLoad() {
+    super.viewDidLoad()
     
     setupTableView()
     setupRefresher()
+    
+    loadLocalData()
   }
 
   private func setupTableView() {
@@ -94,6 +99,10 @@ class ViewController: UITableViewController {
   
   @objc private func clickSortButton(_ sender: Any) {
     viewModel.toggleSorting()
+  }
+  
+  func loadLocalData() {
+    viewModel.getWeathers()
   }
 }
 

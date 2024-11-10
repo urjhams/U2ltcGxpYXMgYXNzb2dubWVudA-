@@ -66,6 +66,7 @@ class CitesWeatherViewModel {
 }
 
 extension CitesWeatherViewModel {
+  
   func fetchCitiesWeather(completion: @escaping (Result<Void, Error>) -> Void) {
     // create the dispatch group
     
@@ -78,10 +79,22 @@ extension CitesWeatherViewModel {
     // update the core data
     
     // if fail, completion with error
+    
+    // if success, try to get weathers and apply new data to the cities
+    applyNewData(<#T##data: [CityWeatherEntity]##[CityWeatherEntity]#>)
   }
   
-  func getWeathers(completion: @escaping (Result<Void, Error>) -> Void) {
-    
+  func getWeathers() {
+    WeatherService.shared.fetchWeathers { result in
+      DispatchQueue.main.async { [weak self] in
+        switch result {
+        case .success(let newVersion):
+          self?.cities = newVersion
+        case .failure(let error):
+          self?.errorHandler(error)
+        }
+      }
+    }
   }
   
   private func applyNewData(_ data: [CityWeatherEntity]) {
