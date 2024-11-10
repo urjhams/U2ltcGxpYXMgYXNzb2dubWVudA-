@@ -11,6 +11,8 @@ import XCTest
 final class WeatherServiceTests: XCTestCase {
   
   var weatherService: WeatherService!
+  var network: Networking!
+  var session: URLSession!
   
   override func setUpWithError() throws {
     // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -22,11 +24,21 @@ final class WeatherServiceTests: XCTestCase {
   
   override func setUp() {
     super.setUp()
-    weatherService = WeatherService.generateInstance()
+    
+    let config = URLSessionConfiguration.ephemeral
+    config.protocolClasses = [MockURLProtocol.self]
+    session = URLSession(configuration: config)
+    
+    network = Networking()
+    
+    weatherService = WeatherService(network)
   }
   
   override func tearDown() {
     weatherService = nil
+    network = nil
+    session = nil
+    MockURLProtocol.response = nil
     super.tearDown()
   }
   
