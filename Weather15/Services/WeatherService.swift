@@ -95,6 +95,9 @@ extension WeatherService {
       // fetch all the weather records
       let fetchRequest = CityWeatherEntity.fetchRequest()
       let existingEntities = try? backgroundContext.fetch(fetchRequest)
+      
+      /// Use a dictionary for O(1) time complexity when we want to check if the corresponding
+      /// entity existed in the context already.
       var existingEntitiesLookUp = [String: CityWeatherEntity]()
       existingEntities?.forEach {
         existingEntitiesLookUp[$0.name ?? ""] = $0
@@ -123,6 +126,8 @@ extension WeatherService {
         newEntity.temp = insert.temp
       }
       
+      /// The update just stores the CityWeatherEntity that we converted from API so we use them
+      /// to update the corresponding entity in the context (existingEntitiesLookUp)
       for update in updates {
         let needToUpdate = existingEntitiesLookUp[update.name ?? ""]
         needToUpdate?.name = update.name
@@ -149,14 +154,21 @@ extension WeatherService {
   func fetchWeathersFromCoreData(
     completion: @escaping (Result<[CityWeatherEntity], Error>) -> Void
   ) {
-    /// in the case of the potential size and complexity of the data is high, run the perform block in background thread instead
-    container.viewContext.perform {
+    /// in the case of the potential size and complexity of the data is high, 
+    /// run the perform block in background thread instead
+    let mainContext = container.viewContext
+    mainContext.perform {
       // make the fetch request to fetch all the weather records
+      let fetchRequest = CityWeatherEntity.fetchRequest()
       
-      // use the fetched record in the completion block
-      
-      // use the completion block for handle the reload in the view model
-      
+      do {
+        let fetchRequest = CityWeatherEntity.fetchRequest()
+        let entities = try mainContext.fetch(fetchRequest)
+        // use the fetched record in the completion block
+        completion(.success(entities))
+      } catch {
+        completion(.failure(error))
+      }
     }
   }
 }
