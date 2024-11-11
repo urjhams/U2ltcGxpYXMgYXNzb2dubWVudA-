@@ -65,7 +65,11 @@ class CitesWeatherViewModel {
 }
 
 extension CitesWeatherViewModel {
-  
+  /// Fetch the weather data of a list of cities from the API
+  /// - Parameters:
+  ///   - service: injected weather service, used for testing
+  ///   - names: names of the cities to fetch data
+  ///   - completion: call back to handle the success responses and errors
   func fetchCitiesWeather(
     service: any WeatherServiceProtocol,
     from names: [String],
@@ -102,6 +106,9 @@ extension CitesWeatherViewModel {
     }
   }
   
+  /// Get the weather data from core data
+  /// - Parameters:
+  ///   - service: injected weather service, used for testing
   func getWeathers(service: any WeatherServiceProtocol) {
     service.fetchWeathersFromCoreData { result in
       DispatchQueue.main.async { [weak self] in
@@ -118,6 +125,10 @@ extension CitesWeatherViewModel {
     }
   }
   
+  /// apply the new data and sync with the local data
+  /// - Parameters:
+  ///   - data: The data model from API call
+  ///   - service: injected weather service, used for testing
   func applyNewData(_ data: [CityWeather], service: any WeatherServiceProtocol) {
     service.syncWeathers(data) { result in
       DispatchQueue.main.async { [weak self] in
@@ -131,6 +142,7 @@ extension CitesWeatherViewModel {
     }
   }
   
+  /// Switch between sorting modes
   func toggleSorting() {
     sorting = switch sorting {
     case .alphabet:
